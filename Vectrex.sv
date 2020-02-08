@@ -117,6 +117,7 @@ module emu
 	// 1 - D-/TX
 	// 2..6 - USR2..USR6
 	// Set USER_OUT to 1 to read from USER_IN.
+    output	      USER_MODE,	
 	input   [6:0] USER_IN,
 	output  [6:0] USER_OUT,
 
@@ -124,7 +125,12 @@ module emu
 );
 
 assign ADC_BUS  = 'Z;
-assign USER_OUT = '1;
+
+wire   JOY_CLK, JOY_LOAD;
+wire   JOY_DATA  = USER_IN[5];
+assign USER_OUT  = |status[31:30] ? {5'b11111,JOY_CLK,JOY_LOAD} : '1;
+assign USER_MODE = |status[31:30] ;
+
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
@@ -152,6 +158,7 @@ localparam CONF_STR = {
 	"O56,Pseudocolor,Off,1,2,3;",
 	"O8,Overburn,No,Yes;",
 	"OC,Port 2,Joystick,Speech;",
+	"OUV,Serial SNAC DB15,Off,1 Player,2 Players;",	
 	"-;",
 	"OA,CPU Model,1,2;",
 	"-;",
@@ -176,12 +183,26 @@ pll pll
 wire [31:0] status;
 wire  [1:0] buttons;
 
-wire [15:0] joystick_0, joystick_1;
+wire [15:0] joystick_0_USB, joystick_1_USB;
 wire [15:0] joya_0, joya_1;
 wire        ioctl_download;
 wire        ioctl_wr;
 wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
+
+wire [15:0] joystick_0 = |status[31:30] ? joydb15_1 : joystick_0_USB;
+wire [15:0] joystick_1 =  status[31]    ? joydb15_2 : status[30] ? joystick_0_USB : joystick_1_USB;
+
+reg [15:0] joydb15_1,joydb15_2;
+joy_db15 joy_db15
+(
+  .clk       ( clk_sys   ), //48MHz
+  .JOY_CLK   ( JOY_CLK   ),
+  .JOY_DATA  ( JOY_DATA  ),
+  .JOY_LOAD  ( JOY_LOAD  ),
+  .joystick1 ( joydb15_1 ),
+  .joystick2 ( joydb15_2 )	  
+);
 
 hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 (
@@ -201,8 +222,8 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.joystick_analog_0(joya_0),
 	.joystick_analog_1(joya_1),
-	.joystick_0(joystick_0),
-	.joystick_1(joystick_1)
+	.joystick_0(joystick_0_USB),
+	.joystick_1(joystick_1_USB)
 );
 
 wire [9:0] audio;

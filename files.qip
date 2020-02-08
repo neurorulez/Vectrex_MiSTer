@@ -12,3 +12,4 @@ set_global_assignment -name VERILOG_FILE mc6809is.v
 set_global_assignment -name VERILOG_FILE mc6809.v
 set_global_assignment -name VHDL_FILE vectrex.vhd
 set_global_assignment -name SYSTEMVERILOG_FILE Vectrex.sv
+set_global_assignment -name VERILOG_FILE joydb15.v
