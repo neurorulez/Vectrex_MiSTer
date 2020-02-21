@@ -192,8 +192,8 @@ wire        ioctl_wr;
 wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
 
-wire [15:0] joystick_0 = |status[31:30] ? joydb15_1 : joystick_0_USB;
-wire [15:0] joystick_1 =  status[31]    ? joydb15_2 : status[30] ? joystick_0_USB : joystick_1_USB;
+wire [15:0] joystick_0 = |status[31:30] ? {joydb15_1[6],joydb15_1[5:4],joydb15_1[7],joydb15_1[3:0]} : joystick_0_USB;
+wire [15:0] joystick_1 =  status[31]    ? {joydb15_2[6],joydb15_2[5:4],joydb15_1[7],joydb15_2[3:0]} : status[30] ? joystick_0_USB : joystick_1_USB;
 
 reg [15:0] joydb15_1,joydb15_2;
 joy_db15 joy_db15
