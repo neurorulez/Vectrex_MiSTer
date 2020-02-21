@@ -117,6 +117,7 @@ module emu
 	// 1 - D-/TX
 	// 2..6 - USR2..USR6
 	// Set USER_OUT to 1 to read from USER_IN.
+    output  	  USER_OSD,
     output	      USER_MODE,	
 	input   [6:0] USER_IN,
 	output  [6:0] USER_OUT,
@@ -130,6 +131,7 @@ wire   JOY_CLK, JOY_LOAD;
 wire   JOY_DATA  = USER_IN[5];
 assign USER_OUT  = |status[31:30] ? {5'b11111,JOY_CLK,JOY_LOAD} : '1;
 assign USER_MODE = |status[31:30] ;
+assign USER_OSD  = joydb15_1[8] & joydb15_1[6];
 
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
@@ -220,7 +222,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 	.ioctl_dout(ioctl_dout),
 	.ioctl_wait(0),
 
-	.joy_raw({(joydb15_1[8]&joydb15_1[6]),joydb15_1[4:0]}),
+	.joy_raw(joydb15_1[5:0]),
 	.joystick_analog_0(joya_0),
 	.joystick_analog_1(joya_1),
 	.joystick_0(joystick_0_USB),
