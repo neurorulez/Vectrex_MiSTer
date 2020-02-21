@@ -220,6 +220,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 	.ioctl_dout(ioctl_dout),
 	.ioctl_wait(0),
 
+	.joy_raw({(joydb15_1[8]&joydb15_1[6]),joydb15_1[4:0]}),
 	.joystick_analog_0(joya_0),
 	.joystick_analog_1(joya_1),
 	.joystick_0(joystick_0_USB),
